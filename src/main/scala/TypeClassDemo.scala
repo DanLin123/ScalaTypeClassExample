@@ -1,7 +1,7 @@
 object TypeClassDemo extends App {
   println("Hello, world!")
 
-  val jsonConvertable = new JsonConvertable[Expression] {
+  implicit val jsonConvertable = new JsonConvertable[Expression] {
     override def convertToJson(value: Expression): JsonValue = value match {
       case Number(value: Int) => JNumber(value)
       case Plus(lhs: Expression, rhs: Expression) => JObject(
@@ -66,7 +66,8 @@ object JsonWriter {
     case JNull => "null"
   }
 
-  def write[A](a: A)(cov: JsonConvertable[A]): String = {
+  def write[A: JsonConvertable](a: A): String = {
+    val cov = implicitly[JsonConvertable[A]]
     write(cov.convertToJson(a))
   }
 }
