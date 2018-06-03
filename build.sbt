@@ -1,4 +1,4 @@
-name := "TypeClassDemo"
+name := "ScalaTypeClassExample"
 
 version := "0.1"
 
