@@ -1,7 +1,7 @@
 object TypeClassDemo extends App {
   println("Hello, world!")
 
-  implicit val jsonConvertable = new JsonConvertable[Expression] {
+  val jsonConvertable = new JsonConvertable[Expression] {
     override def convertToJson(value: Expression): JsonValue = value match {
       case Number(value: Int) => JNumber(value)
       case Plus(lhs: Expression, rhs: Expression) => JObject(
@@ -21,8 +21,8 @@ object TypeClassDemo extends App {
     }
   }
 
-  val expression = Plus(Number(1), Number(2))
-  val expressionJsonStr = JsonWriter.write(expression)
+  val expression: Expression = Plus(Number(1), Number(2))
+  val expressionJsonStr = JsonWriter.write(expression)(jsonConvertable)
   println(expressionJsonStr)
 }
 
@@ -31,6 +31,9 @@ sealed trait Expression
 case class Number(value: Int) extends Expression
 case class Plus(lhs: Expression, rhs: Expression) extends Expression
 case class Minus(lhs: Expression, rhs: Expression) extends Expression
+
+
+
 
 
 sealed trait JsonValue
@@ -63,8 +66,8 @@ object JsonWriter {
     case JNull => "null"
   }
 
-  def write(exp: Expression)(implicit cov: JsonConvertable[Expression]): String = {
-    write(cov.convertToJson(exp))
+  def write[A](a: A)(cov: JsonConvertable[A]): String = {
+    write(cov.convertToJson(a))
   }
 }
 
