@@ -1,21 +1,21 @@
 object TypeClassDemo extends App {
   println("Hello, world!")
 
-  implicit val jsonConvertable = new JsonConvertable[Expression] {
-    override def convertToJson(value: Expression): JsonValue = value match {
+  implicit val jsonConvertable = new Json[Expression] {
+    override def json(value: Expression): JsonValue = value match {
       case Number(value: Int) => JNumber(value)
       case Plus(lhs: Expression, rhs: Expression) => JObject(
         Map(
           "op" -> JString("+"),
-          "lhs" -> convertToJson(lhs),
-          "rhs" -> convertToJson(rhs)
+          "lhs" -> json(lhs),
+          "rhs" -> json(rhs)
         )
       )
       case Minus(lhs: Expression, rhs: Expression) => JObject(
         Map(
           "op" -> JString("-"),
-          "lhs" -> convertToJson(lhs),
-          "rhs" -> convertToJson(rhs)
+          "lhs" -> json(lhs),
+          "rhs" -> json(rhs)
         )
       )
     }
@@ -44,8 +44,8 @@ case class JString(value: String) extends JsonValue
 case class JBool(value: Boolean) extends JsonValue
 object JNull extends JsonValue
 
-trait JsonConvertable[T] {
-  def convertToJson(value: T): JsonValue
+trait Json[T] {
+  def json(value: T): JsonValue
 }
 
 object JsonWriter {
@@ -66,9 +66,9 @@ object JsonWriter {
     case JNull => "null"
   }
 
-  def write[A: JsonConvertable](a: A): String = {
-    val cov = implicitly[JsonConvertable[A]]
-    write(cov.convertToJson(a))
+  def write[A: Json](a: A): String = {
+    val cov = implicitly[Json[A]]
+    write(cov.json(a))
   }
 }
 
